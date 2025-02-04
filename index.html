@@ -25,15 +25,28 @@
         #progress-container {
             background: #ddd;
             border-radius: 5px;
-            height: 10px;
+            height: 20px;
             margin: 10px 0;
             position: relative;
+            overflow: hidden;
         }
         #progress-bar {
             background: #4CAF50;
-            height: 10px;
+            height: 100%;
             width: 0%;
             border-radius: 5px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            transition: width 0.3s;
+        }
+        #progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            line-height: 20px;
         }
         .task {
             display: flex;
@@ -46,6 +59,10 @@
         }
         .task input {
             margin-right: 10px;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: gray;
         }
         button {
             margin-top: 10px;
@@ -70,12 +87,13 @@
 
         <div id="progress-container">
             <div id="progress-bar"></div>
+            <div id="progress-text">0%</div>
         </div>
 
         <div id="taskList"></div>
 
-        <input type="text" id="newTask" placeholder="Nueva tarea..." />
-        <button id="addTask">Afegir</button>
+        <input type="text" id="newTask" placeholder="Nova tasca..." />
+        <button id="addTask">Afegeix tasca</button>
         <button id="clearAll">Neteja</button>
     </div>
 
@@ -85,15 +103,35 @@
         const addTaskButton = document.getElementById("addTask");
         const clearAllButton = document.getElementById("clearAll");
         const progressBar = document.getElementById("progress-bar");
+        const progressText = document.getElementById("progress-text");
+
+        function saveTasks() {
+            const tasks = [];
+            document.querySelectorAll(".task").forEach(task => {
+                tasks.push({
+                    text: task.querySelector("span").textContent,
+                    completed: task.querySelector("input").checked
+                });
+            });
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        function loadTasks() {
+            const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            savedTasks.forEach(task => addTask(task.text, task.completed));
+            updateProgress();
+        }
 
         function updateProgress() {
             const tasks = document.querySelectorAll(".task input");
             const completed = document.querySelectorAll(".task input:checked").length;
-            const percentage = tasks.length ? (completed / tasks.length) * 100 : 0;
+            const percentage = tasks.length ? Math.round((completed / tasks.length) * 100) : 0;
             progressBar.style.width = percentage + "%";
+            progressText.textContent = percentage + "%";
+            saveTasks();
         }
 
-        function addTask(text = "") {
+        function addTask(text = "", completed = false) {
             if (text.trim() === "") return;
             
             const taskDiv = document.createElement("div");
@@ -101,10 +139,15 @@
             
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
-            checkbox.addEventListener("change", updateProgress);
+            checkbox.checked = completed;
+            checkbox.addEventListener("change", function() {
+                taskText.classList.toggle("completed", checkbox.checked);
+                updateProgress();
+            });
 
             const taskText = document.createElement("span");
             taskText.textContent = text;
+            if (completed) taskText.classList.add("completed");
 
             taskDiv.appendChild(checkbox);
             taskDiv.appendChild(taskText);
@@ -117,10 +160,13 @@
         function clearAllTasks() {
             taskList.innerHTML = "";
             updateProgress();
+            localStorage.removeItem("tasks");
         }
 
         addTaskButton.addEventListener("click", () => addTask(newTaskInput.value));
         clearAllButton.addEventListener("click", clearAllTasks);
+
+        loadTasks();
     </script>
 </body>
 </html>
