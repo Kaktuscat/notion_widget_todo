@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To do!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: auto;
+        }
+        h2 {
+            margin-bottom: 10px;
+        }
+        #progress-container {
+            background: #ddd;
+            border-radius: 5px;
+            height: 10px;
+            margin: 10px 0;
+            position: relative;
+        }
+        #progress-bar {
+            background: #4CAF50;
+            height: 10px;
+            width: 0%;
+            border-radius: 5px;
+        }
+        .task {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f9f9f9;
+            padding: 5px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .task input {
+            margin-right: 10px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #addTask {
+            background: #2196F3;
+            color: white;
+        }
+        #clearAll {
+            background: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📋 To do!</h2>
+
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+
+        <div id="taskList"></div>
+
+        <input type="text" id="newTask" placeholder="Nueva tarea..." />
+        <button id="addTask">Afegir</button>
+        <button id="clearAll">Neteja</button>
+    </div>
+
+    <script>
+        const taskList = document.getElementById("taskList");
+        const newTaskInput = document.getElementById("newTask");
+        const addTaskButton = document.getElementById("addTask");
+        const clearAllButton = document.getElementById("clearAll");
+        const progressBar = document.getElementById("progress-bar");
+
+        function updateProgress() {
+            const tasks = document.querySelectorAll(".task input");
+            const completed = document.querySelectorAll(".task input:checked").length;
+            const percentage = tasks.length ? (completed / tasks.length) * 100 : 0;
+            progressBar.style.width = percentage + "%";
+        }
+
+        function addTask(text = "") {
+            if (text.trim() === "") return;
+            
+            const taskDiv = document.createElement("div");
+            taskDiv.classList.add("task");
+            
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.addEventListener("change", updateProgress);
+
+            const taskText = document.createElement("span");
+            taskText.textContent = text;
+
+            taskDiv.appendChild(checkbox);
+            taskDiv.appendChild(taskText);
+            taskList.appendChild(taskDiv);
+
+            newTaskInput.value = "";
+            updateProgress();
+        }
+
+        function clearAllTasks() {
+            taskList.innerHTML = "";
+            updateProgress();
+        }
+
+        addTaskButton.addEventListener("click", () => addTask(newTaskInput.value));
+        clearAllButton.addEventListener("click", clearAllTasks);
+    </script>
+</body>
+</html>
