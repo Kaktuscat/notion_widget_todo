@@ -52,7 +52,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #f9f9f9;
+            background: #C9CEBD;
             padding: 5px;
             border-radius: 5px;
             margin: 5px 0;
@@ -70,14 +70,11 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-        }
-        #addTask {
-            background: #2196F3;
+            background: #6C6061;
             color: white;
         }
-        #clearAll {
-            background: #f44336;
-            color: white;
+        #clearCompleted {
+            background: #6C6061;
         }
     </style>
 </head>
@@ -93,15 +90,15 @@
         <div id="taskList"></div>
 
         <input type="text" id="newTask" placeholder="Nova tasca..." />
-        <button id="addTask">Afegeix tasca</button>
-        <button id="clearAll">Neteja</button>
+        <button id="addTask">Afegir</button>
+        <button id="clearCompleted">Neteja</button>
     </div>
 
     <script>
         const taskList = document.getElementById("taskList");
         const newTaskInput = document.getElementById("newTask");
         const addTaskButton = document.getElementById("addTask");
-        const clearAllButton = document.getElementById("clearAll");
+        const clearCompletedButton = document.getElementById("clearCompleted");
         const progressBar = document.getElementById("progress-bar");
         const progressText = document.getElementById("progress-text");
 
@@ -157,14 +154,26 @@
             updateProgress();
         }
 
-        function clearAllTasks() {
-            taskList.innerHTML = "";
+        function clearCompletedTasks() {
+            document.querySelectorAll(".task input:checked").forEach(checkbox => {
+                checkbox.parentElement.remove();
+            });
             updateProgress();
-            localStorage.removeItem("tasks");
+            saveTasks();
         }
 
+        // Agregar tarea con botón
         addTaskButton.addEventListener("click", () => addTask(newTaskInput.value));
-        clearAllButton.addEventListener("click", clearAllTasks);
+
+        // Agregar tarea con tecla Enter
+        newTaskInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                addTask(newTaskInput.value);
+            }
+        });
+
+        // Botón para eliminar solo las tareas completadas
+        clearCompletedButton.addEventListener("click", clearCompletedTasks);
 
         loadTasks();
     </script>
